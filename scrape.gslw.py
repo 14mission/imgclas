@@ -2,11 +2,6 @@
 import re
 import urllib.request
 
-baseurl = "https://www.gearedsteam.com/"
-urls = [baseurl]
-
-didbefore = {}
-
 def urlnorm(url):
   url = re.sub(r'#.*$','',url)
   while re.search(r'[^/]+/\.\./',url):
@@ -18,7 +13,12 @@ def urlnorm(url):
 
 def main():
 
+  baseurl = "https://www.gearedsteam.com/"
+  urls = [baseurl]
+  didbefore = {}
   locotypes = {}
+
+  outlist = open("gslw.imgs.csv","w")
 
   while(len(urls)):
     url = urls.pop(0)
@@ -58,6 +58,8 @@ def main():
         else:
           print("getimg: "+url+" ("+locotype+") -> "+img)
           didbefore[img] = True
+          localfn = "gslw.imgs/" + re.sub(r'^.*/','',img)
+          print(localfn+","+locotype,file=outlist)
           if locotype not in locotypes:
             locotypes[locotype] = 0
           locotypes[locotype] += 1
