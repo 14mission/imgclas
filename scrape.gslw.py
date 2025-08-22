@@ -18,7 +18,7 @@ def main():
   didbefore = {}
   locotypes = {}
 
-  outlist = open("gslw.imgs.csv","w")
+  outlist = open("gslw.tn.imgs.csv","w")
 
   while(len(urls)):
     url = urls.pop(0)
@@ -50,6 +50,8 @@ def main():
       img = urlnorm(img)
       if img in didbefore:
         print("didimgbefore: "+img)
+      elif re.search(r'[^\w:/\.-]',img):
+        print("badchar: "+img)
       else:
         typematch = re.match(r'^.+\b(heisler|shay|climax|bell|dunkirk|baldwin|willamette|davenport|dewey|rod|byers|other|books)\b',img)
         locotype = ("unknown" if typematch == None else typematch.group(1))
@@ -58,8 +60,11 @@ def main():
         else:
           print("getimg: "+url+" ("+locotype+") -> "+img)
           didbefore[img] = True
-          localfn = "gslw.imgs/" + re.sub(r'^.*/','',img)
+          localfn = "gslw.tn.imgs/" + re.sub(r'^.*/','',img)
           print(localfn+","+locotype,file=outlist)
+          imgcontent = urllib.request.urlopen(img).read()
+          imgout = open(localfn,"wb")
+          imgout.write(imgcontent)
           if locotype not in locotypes:
             locotypes[locotype] = 0
           locotypes[locotype] += 1
