@@ -18,6 +18,8 @@ def urlnorm(url):
 
 def main():
 
+  locotypes = {}
+
   while(len(urls)):
     url = urls.pop(0)
     print("get: "+url)
@@ -49,7 +51,18 @@ def main():
       if img in didbefore:
         print("didimgbefore: "+img)
       else:
-        print("getimg: "+url+" -> "+img)
-        didbefore[img] = True
+        typematch = re.match(r'^.+\b(heisler|shay|climax|bell|dunkirk|baldwin|willamette|davenport|dewey|rod|byers|other|books)\b',img)
+        locotype = ("unknown" if typematch == None else typematch.group(1))
+        if locotype == "books" or locotype == "unknown":
+          print("skiplocotype: "+locotype)
+        else:
+          print("getimg: "+url+" ("+locotype+") -> "+img)
+          didbefore[img] = True
+          if locotype not in locotypes:
+            locotypes[locotype] = 0
+          locotypes[locotype] += 1
+
+  for locotype in sorted(locotypes.keys()):
+    print(locotype+"="+str(locotypes[locotype]))
 
 main()
