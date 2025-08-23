@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import re
 import urllib.request
+import time
+import os.path
 
 def urlnorm(url):
   url = re.sub(r'#.*$','',url)
@@ -17,8 +19,9 @@ def main():
   urls = [baseurl]
   didbefore = {}
   locotypes = {}
+  tnmode = False
 
-  outlist = open("gslw.tn.imgs.csv","w")
+  outlist = open("gslw."+("tn" if tnmode else "big")+".imgs.csv","w")
 
   while(len(urls)):
     url = urls.pop(0)
@@ -36,7 +39,7 @@ def main():
         print("badchar")
       elif len(nexturl) < len(baseurl) or nexturl[0:len(baseurl)] != baseurl:
         print("skipexternal")
-      elif re.search(r'(\?|=|new|video|help|links|support|article|copyright|advert)',nexturl):
+      elif re.search(r'(\?|=|new|video|help|links|support|article|copyright|advert|patent)',nexturl):
         print("skipquery")
       elif nexturl in didbefore:
         print("didbefore")
@@ -44,7 +47,10 @@ def main():
         print("APPEND")
         didbefore[nexturl] = True
         urls.append(nexturl)
-    for img in re.findall(r'img [^>]*src="([^"]+)',content):
+    for img in re.findall(
+      r'img [^>]*src="([^"]+)' if tnmode else r'href="([^"]+\.jpg)',
+      content
+    ):
       if not re.match(r'^https?:',img):
         img = re.sub(r'[^\/]+$','',url)+img
       img = urlnorm(img)
@@ -60,11 +66,21 @@ def main():
         else:
           print("getimg: "+url+" ("+locotype+") -> "+img)
           didbefore[img] = True
-          localfn = "gslw.tn.imgs/" + re.sub(r'^.*/','',img)
+          localfn = "gslw."+("tn" if tnmode else "big")+".imgs/" + re.sub(r'^.*/','',img)
           print(localfn+","+locotype,file=outlist)
-          imgcontent = urllib.request.urlopen(img).read()
-          imgout = open(localfn,"wb")
-          imgout.write(imgcontent)
+          if os.path.isfile(localfn):
+            print("gotbefore")
+          else:
+            imgcontent = None
+            try:
+              imgcontent = urllib.request.urlopen(img).read()
+            except:
+              print("notfound")
+              continue
+            imgout = open(localfn,"wb")
+            imgout.write(imgcontent)
+            if not tnmode:
+              time.sleep(0.1) # seems polite!
           if locotype not in locotypes:
             locotypes[locotype] = 0
           locotypes[locotype] += 1
