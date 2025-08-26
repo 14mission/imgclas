@@ -22,7 +22,7 @@ for i, label in enumerate(labels):
 print("load vit model")
 from transformers import AutoImageProcessor
 checkpoint = "google/vit-base-patch16-224-in21k"
-image_processor = AutoImageProcessor.from_pretrained(checkpoint)
+image_processor = AutoImageProcessor.from_pretrained(checkpoint,use_fast=True)
 
 # apply some image transformations
 print("image transforms")
@@ -73,8 +73,8 @@ training_args = TrainingArguments(
     per_device_train_batch_size=16,
     gradient_accumulation_steps=4,
     per_device_eval_batch_size=16,
-    #num_train_epochs=3,
-    num_train_epochs=1,
+    num_train_epochs=3,
+    #num_train_epochs=1,
     warmup_ratio=0.1,
     logging_steps=10,
     load_best_model_at_end=True,
