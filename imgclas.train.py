@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from datasets import load_dataset, Image, ClassLabel
 from PIL import Image as PILImage
-import sys, os, re, glob
+import sys, os, re, glob, shutil
 
 def valid_image_path(path):
   try:
@@ -112,8 +112,10 @@ training_args = TrainingArguments(
     per_device_train_batch_size=16,
     gradient_accumulation_steps=4,
     per_device_eval_batch_size=16,
-    #num_train_epochs=3,
-    num_train_epochs=1,
+    #num_train_epochs=10,
+    #num_train_epochs=5,
+    num_train_epochs=3,
+    #num_train_epochs=1,
     warmup_ratio=0.1,
     logging_steps=10,
     load_best_model_at_end=True,
