@@ -15,7 +15,7 @@ def valid_image_path(path):
 av = sys.argv
 av.pop(0)
 if len(av) != 1:
-  raise Exception("usage: imgcla.train.py imglist.csv")
+  raise Exception("usage: imgclas.train.py imglist.csv")
 csvfn = av[0]
 
 print("load csv")
