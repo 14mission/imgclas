@@ -1,21 +1,30 @@
 #!/usr/bin/env python3
 from datasets import load_dataset
+import sys
 
 print("load dataset")
 food = load_dataset("food101", split="train[:5000]")
-print("set split")
-food = food.train_test_split(test_size=0.2)
 print("sample")
-print(food["train"][0])
+print(food[0])
 
 print("labelmaps")
-labels = food["train"].features["label"].names
+labels = food.features["label"].names
 label2id, id2label = dict(), dict()
 for i, label in enumerate(labels):
     label2id[label] = str(i)
     id2label[str(i)] = label
-    if i < 5:
+    if i < 20:
         print(f"{i} {label}")
+print("num labels: "+str(len(label2id.keys())))
+
+print("numperlabel in train set")
+numperlabel = {}
+for item in food:
+  lblstr = id2label[str(item["label"])]
+  if lblstr not in numperlabel:
+    numperlabel[lblstr] = 0
+  numperlabel[lblstr] += 1
+print(", ".join(lbl+"="+str(numperlabel[lbl]) for lbl in sorted(numperlabel.keys())))
 
 # load vit model
 # (we need it first for turning images into features)
@@ -62,6 +71,10 @@ model = AutoModelForImageClassification.from_pretrained(
     label2id=label2id,
 )
 
+print("datasplit")
+food_train = food.filter(lambda example, idx: idx % 10 < 8, with_indices=True)
+food_vali = food.filter(lambda example, idx: idx % 10 == 8, with_indices=True)
+
 print("training")
 modeldir = "schmecktgut"
 training_args = TrainingArguments(
@@ -85,8 +98,8 @@ trainer = Trainer(
     model=model,
     args=training_args,
     data_collator=data_collator,
-    train_dataset=food["train"],
-    eval_dataset=food["test"],
+    train_dataset=food_train,
+    eval_dataset=food_vali,
     processing_class=image_processor,
     compute_metrics=compute_metrics,
 )
