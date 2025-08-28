@@ -22,6 +22,7 @@ def main():
   tnmode = False
 
   outlist = open("gslw."+("tn" if tnmode else "big")+".imgs.csv","w")
+  print("image,label",file=outlist)
 
   while(len(urls)):
     url = urls.pop(0)
