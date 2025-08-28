@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import re
 from datasets import load_dataset
 from transformers import pipeline
 
@@ -20,9 +21,15 @@ for lblnum in food_test["label"]:
   numperlabel[lblstr] += 1
 print(", ".join(lbl+"="+str(numperlabel[lbl]) for lbl in sorted(numperlabel.keys())))
 
-print("infer")
+outfn = "food.infer.out.tsv"
+print(f"infer, write {outfn}")
+outh = open(outfn,"w")
 for i in range(len(food_test["image"])):
   imgdata = food_test["image"][i]
   reflabel = id2label[food_test["label"][i]]
   results = classifier(imgdata)
-  print(str(imgdata)+"\t"+str(reflabel)+"\t"+str(results[0]["label"]))
+  print(
+    re.sub(r'\s+','_',str(imgdata))
+    +"\t"+str(reflabel)
+    +"\t"+str(results[0]["label"]),
+    file=outh)
