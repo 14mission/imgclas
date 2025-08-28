@@ -68,7 +68,6 @@ def main():
           print("getimg: "+url+" ("+locotype+") -> "+img)
           didbefore[img] = True
           localfn = "gslw."+("tn" if tnmode else "big")+".imgs/" + re.sub(r'^.*/','',img)
-          print(localfn+","+locotype,file=outlist)
           if os.path.isfile(localfn):
             print("gotbefore")
           else:
@@ -82,6 +81,7 @@ def main():
             imgout.write(imgcontent)
             if not tnmode:
               time.sleep(0.1) # seems polite!
+          print(localfn+","+locotype,file=outlist)
           if locotype not in locotypes:
             locotypes[locotype] = 0
           locotypes[locotype] += 1
