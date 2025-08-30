@@ -1,0 +1,21 @@
+to see wayback machine snapshots:
+
+sudo gem install wayback_machine_downloader_straw
+
+(note need to use "straw" branch)
+
+sample run:
+
+wayback_machine_downloader -f 20240101 -t 20240201 www.gearedsteam.com
+
+add -c N for concurrency (20 seems ok) -- or actually, that might get you blocked
+
+what we really want (jun 24 seems to be well captured):
+
+wayback_machine_downloader -f 20240101 opensfhistory.org 
+
+(I actually went farther back, but there's something odd here; image description files are at locations like https://opensfhistory.org/Display/wnp14.0654.jpg (actually html and not jpg content), but not captured very well.  go go into opensfhistory.mygrab and run:
+
+du -ah ../websites/opensfhistory.org/Image/ | grep 'jpg$' | awk '{print $2}' | sed -e 's/.*\///g;' | awk '{print "wget https://opensfhistory.org/Display/"$1}' | sh
+
+then copy all these "jpg" files to ../websites/opensfhistory.org/Display/
