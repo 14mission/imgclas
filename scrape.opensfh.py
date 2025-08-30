@@ -117,7 +117,7 @@ dataset.sort(key=lambda item: fnsortfunc(item["img"]))
 outfn = "opensfhistory.imgs.csv"
 print(f"write {outfn}")
 outh = open(outfn,"w")
-print("text,labels",file=outh)
+print("image,label",file=outh)
 for item in dataset:
   # get keywords
   itemkw = {}
