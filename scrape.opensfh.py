@@ -20,11 +20,18 @@ for dispfn in glob.glob("websites/opensfhistory.org/Display/*jpg"):
   if description == None:
     continue
 
-  # <meta property="og:title" content="Cole & Haight" />
+  # <meta property="og:" content="Cole & Haight" />
   m = re.search(r'<meta property="og:title" content="([^"<>]+)', content)
-  title = None if m == None else m.group(1)
-  print(f" title: {title}")
-  if title == None:
+  titlestr = None if m == None else m.group(1)
+  print(f" title: {titlestr}")
+  if titlestr == None:
+    continue
+
+  # <meta name="keywords" content="people posed, San Francisco History, San Francisco" >
+  m = re.search(r'<meta name="keywords"[^<>]*content="([^"<>]+)', content)
+  keywordstr = None if m == None else m.group(1)
+  print(f" keywords: {keywordstr}")
+  if keywordstr == None:
     continue
 
   # <img src="/Image/800/wnp72.1285.jpg" class="img-responsive" alt="Powell & Market">
@@ -43,4 +50,4 @@ for dispfn in glob.glob("websites/opensfhistory.org/Display/*jpg"):
     continue
   imgfile = candidates[-1]
 
-  print(imgfile + "," + title, file=outh)
+  print(imgfile + ", title=" + titlestr + ", keywords=" + keywordstr + ", description=" + description, file=outh)
