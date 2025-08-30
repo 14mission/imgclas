@@ -63,25 +63,45 @@ def norm(s):
   s = re.sub(r'\b(western neighborhoods)(\s*project)?(\s*image)?',' ',s)
   s = re.sub(r'\b(san[\s_]francisco|history)\b',' ',s)
   s = " ".join(re.findall(r'(\w+(?:\'\w+)*)',s) )
+  s = re.sub(
+    r'\b(golden gate park|golden gate|market street railway|market street|cliff house|southern pacific|key system)\b', # data-driven set would be better!
+    lambda m: "_".join(m.group(1).split()), s)
   return s
 
 #top words
 print("wfreq")
 wfreq = {}
+bgfreq = {}
+tgfreq = {}
 for item in dataset:
   for s in [item["title"],item["keywords"],item["description"]]:
     s = norm(s)
-    for w in s.split():
+    toks = s.split()
+    for i in range(len(toks)):
+      w = toks[i]
       if w not in wfreq:
         wfreq[w] = 0 
       wfreq[w] += 1
-i = 0
-for wordandcount in sorted(wfreq.items(), key=lambda item: str(1.0/item[1])+item[0]):
-  w, n = wordandcount
-  print(f"{w}\t{n}")
-  i += 1
-  if i >= 25:
-    break
+      if i+1 < len(toks):
+        bg = toks[i]+" "+toks[i+1]
+        if bg not in bgfreq:
+          bgfreq[bg] = 0
+        bgfreq[bg] += 1
+      if i+2 < len(toks):
+        tg = toks[i]+" "+toks[i+1]+" "+toks[i+2]
+        if tg not in tgfreq:
+          tgfreq[tg] = 0
+        tgfreq[tg] += 1
+for nw in [1,2,3]:
+  print(f"{nw}grams")
+  countset = wfreq if nw == 1 else ( bgfreq if nw == 2 else tgfreq )
+  i = 0
+  for wordandcount in sorted(countset.items(), key=lambda item: str(1.0/item[1])+item[0]):
+    w, n = wordandcount
+    print(f"{w}\t{n}")
+    i += 1
+    if i >= 25:
+      break
 
 excludewords = "the be to of and a in that have i it for not on with he as you do at this but his by from they we say her she or an will my one all would there their what so up out if about who get which go me when make can like time no just him know take people into year your good some could them see other than then now look only come its over think also back after use two how our work first well way even new want because any these give day most us".split()
 
@@ -94,6 +114,6 @@ for item in dataset:
     for w in norm(s).split():
       if w not in excludewords and len(w) > 1 and re.match(r'^.*[a-z]',w) != None:
         itemkw[w] = True
-  print(item["img"]+","+",".join(sorted(itemkw.keys())), file=outh)
+  print(item["img"]+",\""+",".join(sorted(itemkw.keys()))+"\"", file=outh)
 
 print("done")
