@@ -63,8 +63,15 @@ def norm(s):
   s = re.sub(r'\b(western neighborhoods)(\s*project)?(\s*image)?',' ',s)
   s = re.sub(r'\b(san[\s_]francisco|history)\b',' ',s)
   s = " ".join(re.findall(r'(\w+(?:\'\w+)*)',s) )
+  s = re.sub(r'\bcablecar\b','cable_car',s)
+  s = re.sub(r'\bpanama pacific international exposition\b','ppie',s)
+  s = re.sub(r'\boutsidelands\b','outside_lands',s)
+  s = re.sub(r'\burr\b','united_railroads',s)
+  s = re.sub(r'\bmsr\b','markset_street_railway',s)
+  s = re.sub(r'\bmunicipal railway\b','muni',s)
+  s = re.sub(r'\bde young\b','deyoung',s)
   s = re.sub(
-    r'\b(golden gate park|golden gate|market street railway|market street|cliff house|southern pacific|key system)\b', # data-driven set would be better!
+    r'\b(golden gate park|golden gate|market street railway|market street|cliff house|southern pacific|key system|cable car|ferry building|call building|twin peaks|bernal heights|noe valley|western addition|city hall|van ness|buena vista|yerba buena|(?:telegraph|russian|nob|rincon) hill|lone mountain|san \w+|sutro baths|sutro tower|fire department|police department|civic center|united railroads|palace hotel|ocean beach|union square|bay bridge|golden gate bridge|baker beach|north beach|south beach|st francis|pride parade|tea garden|midwinter fair|academy of sciences|coit tower)\b', # data-driven set would be better!
     lambda m: "_".join(m.group(1).split()), s)
   return s
 
@@ -100,10 +107,10 @@ for nw in [1,2,3]:
     w, n = wordandcount
     print(f"{w}\t{n}")
     i += 1
-    if i >= 25:
+    if n < 200:
       break
 
-excludewords = "the be to of and a in that have i it for not on with he as you do at this but his by from they we say her she or an will my one all would there their what so up out if about who get which go me when make can like time no just him know take people into year your good some could them see other than then now look only come its over think also back after use two how our work first well way even new want because any these give day most us is are were where location".split()
+excludewords = "the be to of and a in that have i it for not on with he as you do at this but his by from they we say her she or an will my one all would there their what so up out if about who get which go me when make can like time no just him know take people into year your good some could them see other than then now look only come its over think also back after use two how our work first well way even new want because any these give day most us is are were where location cropped copy_negative original_print nitrate_negative was looking between glassneg view vista north south east west left right up down background building buildings acetate_negative color streoview street st across line distance northeast southwest northwest southeast glassneg ave avenue co postcard sf sfhistory streets foreground far image taken print large small original copy unknown location near corner intersection near toward posed sfheritage label image mt top bottom".split()
 
 # sort data in an order that's sorta random but actually deterministic
 def fnsortfunc(fn):
@@ -118,12 +125,13 @@ outfn = "opensfhistory.imgs.csv"
 print(f"write {outfn}")
 outh = open(outfn,"w")
 print("image,label",file=outh)
+kwcu = 250
 for item in dataset:
   # get keywords
   itemkw = {}
   for s in [item["title"],item["keywords"],item["description"]]:
     for w in norm(s).split():
-      if w not in excludewords and len(w) > 1 and re.match(r'^.*[a-z]',w) != None:
+      if w not in excludewords and len(w) > 1 and re.match(r'^[a-z\']+$',w) != None and w in wfreq and wfreq[w] >= kwcu:
         itemkw[w] = True
   # write csv row
   print(item["img"]+",\""+",".join(sorted(itemkw.keys()))+"\"", file=outh)
